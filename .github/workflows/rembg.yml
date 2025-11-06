@@ -9,6 +9,9 @@ jobs:
   processar:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write  # 👈 Permite o GitHub Actions enviar commits
+
     steps:
       - name: Clonar repositório
         uses: actions/checkout@v3
@@ -18,7 +21,7 @@ jobs:
         with:
           python-version: "3.10"
 
-      - name: Instalar Rembg
+      - name: Instalar Rembg e Pillow
         run: pip install rembg pillow
 
       - name: Processar imagens
@@ -33,6 +36,8 @@ jobs:
           done
 
       - name: Fazer commit e enviar resultado
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # 👈 Token automático do GitHub Actions
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
