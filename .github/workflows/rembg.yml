@@ -1,0 +1,41 @@
+name: Processar imagens com Rembg
+
+on:
+  push:
+    paths:
+      - "inputs/**"
+
+jobs:
+  processar:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clonar repositório
+        uses: actions/checkout@v3
+
+      - name: Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Instalar Rembg
+        run: pip install rembg pillow
+
+      - name: Processar imagens
+        run: |
+          mkdir -p outputs
+          for img in inputs/*; do
+            if [ -f "$img" ]; then
+              nome=$(basename "$img")
+              echo "Processando $nome..."
+              rembg i "$img" "outputs/$nome"
+            fi
+          done
+
+      - name: Fazer commit e enviar resultado
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add outputs/*
+          git commit -m "Imagem processada automaticamente" || echo "Nada para commitar"
+          git push
